@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.log
+
+# Runtime data, not meant to be versioned
+links.txt
+downloading/
+finished/
+.env
