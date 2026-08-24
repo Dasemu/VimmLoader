@@ -6,6 +6,8 @@ venv/
 
 # Runtime data, not meant to be versioned
 links.txt
-downloading/
-finished/
+downloading/*
+finished/*
+!downloading/.gitkeep
+!finished/.gitkeep
 .env

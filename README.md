@@ -43,7 +43,7 @@ Then run the downloader:
 python3 run.py
 ```
 
-The `downloading/` and `finished/` folders are created automatically. Downloads are saved to `downloading/`, then extracted into `finished/`, and the original archive is deleted once extraction succeeds. Any URL that fails to resolve is kept in `links.txt` so you can retry later.
+Downloads are saved to `downloading/`, then extracted into `finished/`, and the original archive is deleted once extraction succeeds. Any URL that fails to resolve is kept in `links.txt` so you can retry later.
 
 ### Optional: session cookie
 
