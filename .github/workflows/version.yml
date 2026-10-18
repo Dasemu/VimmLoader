@@ -1,0 +1,74 @@
+name: Version Bump
+
+on:
+  push:
+    branches: [development, main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: version-bump-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    if: >-
+      github.actor != 'github-actions[bot]' &&
+      !contains(github.event.head_commit.message, '[skip ci]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref_name }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Read current version
+        id: current
+        run: |
+          if [ -f VERSION ]; then
+            echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=0.1.0" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Compute new version
+        id: bump
+        run: |
+          IFS='.' read -r MAJOR MINOR PATCH <<< "${{ steps.current.outputs.version }}"
+          if [ "${{ github.ref_name }}" = "development" ]; then
+            # Every push to development bumps PATCH.
+            PATCH=$((PATCH + 1))
+          else
+            git fetch origin development
+            if git merge-base --is-ancestor origin/development HEAD; then
+              # main's new tip already contains development's tip: an
+              # approved development -> main PR. Bump MINOR, reset PATCH.
+              MINOR=$((MINOR + 1))
+              PATCH=0
+            else
+              # Direct hotfix push to main.
+              PATCH=$((PATCH + 1))
+            fi
+          fi
+          echo "version=$MAJOR.$MINOR.$PATCH" >> "$GITHUB_OUTPUT"
+
+      - name: Write VERSION and commit
+        run: |
+          echo "${{ steps.bump.outputs.version }}" > VERSION
+          git add VERSION
+          git commit -m "chore(release): v${{ steps.bump.outputs.version }} [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}
+
+      - name: Merge main back into development
+        if: github.ref_name == 'main'
+        run: |
+          git fetch origin development
+          git checkout development
+          git merge --no-edit origin/main
+          git push origin development
