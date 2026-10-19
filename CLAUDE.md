@@ -14,6 +14,7 @@ Command-line tool that batch-downloads archives from Vimm's Lair vault pages, ex
 - `run.py`: scrapes each vault page for its download form, downloads the archive with a progress bar, extracts `.zip`/`.7z` into `finished/`, deletes the archive, and drops successfully processed lines from `links.txt`.
 - `generator.py`: writes a sequential range of vault URLs to `links.txt`.
 - `downloading/`, `finished/`: working directories; contents are gitignored, directories kept via `.gitkeep`.
+- See [docs/architecture.md](docs/architecture.md) for the full data flow.
 
 ## Conventions
 - Single-file scripts, no package structure; keep it that way unless the tool grows.
